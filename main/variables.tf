@@ -18,3 +18,8 @@ variable "private_3a_cidr_block" {
 variable "availability_zone_3a" {
   type = string
 }
+
+variable "web_ami" {
+  type    = string
+  default = "t3.micro"
+}

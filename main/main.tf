@@ -119,15 +119,34 @@ resource "aws_security_group" "db_sg" {
 }
 
 resource "aws_vpc_security_group_ingress_rule" "db" {
-  security_group_id = aws_security_group.db_sg.id
-  ip_protocol       = "tcp"
-  from_port         = 3306
-  to_port           = 3306
- referenced_security_group_id = aws_security_group.web_sg.id
+  security_group_id            = aws_security_group.db_sg.id
+  ip_protocol                  = "tcp"
+  from_port                    = 3306
+  to_port                      = 3306
+  referenced_security_group_id = aws_security_group.web_sg.id
 }
 
 resource "aws_vpc_security_group_egress_rule" "db_all" {
   security_group_id = aws_security_group.db_sg.id
   ip_protocol       = "-1"
   cidr_ipv4         = "0.0.0.0/0"
+}
+
+# key_pair
+resource "aws_key_pair" "key_pair" {
+  key_name   = "key_pair"
+  public_key = data.aws_key_pair.key_pair.public_key
+}
+
+# instance
+resource "aws_instance" "web_server" {
+  ami                    = data.aws_ami.redhat.id
+  instance_type          = var.web_ami
+  key_name               = aws_key_pair.key_pair.key_name
+  subnet_id              = aws_subnet.public_3a.id
+  vpc_security_group_ids = [aws_security_group.web_sg.id]
+
+  tags = {
+    Name = "terraform_web_server"
+  }
 }
