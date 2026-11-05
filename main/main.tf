@@ -29,6 +29,16 @@ resource "aws_subnet" "private_3a" {
   }
 }
 
+resource "aws_subnet" "private_3c" {
+  vpc_id            = aws_vpc.main.id
+  cidr_block        = var.private_3c_cidr_block
+  availability_zone = var.availability_zone_3c
+
+  tags = {
+    Name = "terraform_private_3c"
+  }
+}
+
 # gateway
 resource "aws_internet_gateway" "igw" {
   vpc_id = aws_vpc.main.id
@@ -148,5 +158,44 @@ resource "aws_instance" "web_server" {
 
   tags = {
     Name = "terraform_web_server"
+  }
+}
+
+# RDS
+resource "aws_db_subnet_group" "db_subnet" {
+  name       = "db-subnet"
+  subnet_ids = [aws_subnet.private_3a.id, aws_subnet.private_3c.id]
+
+  tags = {
+    Name = "terraform_db_subnet_group"
+  }
+}
+
+resource "aws_db_parameter_group" "db_parameter" {
+  name   = "db-parameter"
+  family = "mysql8.4"
+}
+
+resource "random_string" "db_password" {
+  length  = 16
+  special = false
+}
+
+resource "aws_db_instance" "db" {
+  identifier             = "mysql"
+  instance_class         = "db.t3.micro"
+  allocated_storage      = 5
+  engine                 = "mysql"
+  engine_version         = "8.4"
+  db_name                = "terrafomr_db"
+  username               = "admin"
+  password               = random_string.db_password.result
+  db_subnet_group_name   = aws_db_subnet_group.db_subnet.name
+  vpc_security_group_ids = [aws_security_group.db_sg.id]
+  parameter_group_name   = aws_db_parameter_group.db_parameter.name
+  skip_final_snapshot    = true
+
+  tags = {
+    Name = "terraform_db"
   }
 }
