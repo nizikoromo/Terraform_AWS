@@ -63,7 +63,7 @@ resource "aws_route" "public" {
   gateway_id             = aws_internet_gateway.igw.id
 }
 
-resource "aws_route_table_association" "test" {
+resource "aws_route_table_association" "association_public" {
   subnet_id      = aws_subnet.public_3a.id
   route_table_id = aws_route_table.rt_public.id
 }
@@ -92,6 +92,14 @@ resource "aws_vpc_security_group_ingress_rule" "icmp" {
   ip_protocol       = "icmp"
   from_port         = 8
   to_port           = 8
+  cidr_ipv4         = "${chomp(data.http.my_ip.response_body)}/32"
+}
+
+resource "aws_vpc_security_group_ingress_rule" "port8080" {
+  security_group_id = aws_security_group.web_sg.id
+  ip_protocol       = "tcp"
+  from_port         = 8080
+  to_port           = 8080
   cidr_ipv4         = "${chomp(data.http.my_ip.response_body)}/32"
 }
 
@@ -187,7 +195,7 @@ resource "aws_db_instance" "db" {
   allocated_storage      = 5
   engine                 = "mysql"
   engine_version         = "8.4"
-  db_name                = "terrafomr_db"
+  db_name                = "terraform_db"
   username               = "admin"
   password               = random_string.db_password.result
   db_subnet_group_name   = aws_db_subnet_group.db_subnet.name
