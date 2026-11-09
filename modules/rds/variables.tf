@@ -1,0 +1,13 @@
+variable "db_subnet_name" {}
+variable "db_parameter_name" {}
+variable "db_parameter_family" {}
+variable "db_identifier" {}
+variable "db_instance_class" {}
+variable "db_allocated_storage" {}
+variable "db_engine" {}
+variable "engine_version" {}
+variable "db_username" {}
+variable "db_name" {}
+variable "subnet_private_3a_id" {}
+variable "subnet_private_3c_id" {}
+variable "security_group_db_sg_id" {}

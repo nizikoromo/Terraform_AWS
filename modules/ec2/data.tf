@@ -1,8 +1,3 @@
-# Obtain the public IP address of the local device
-data "http" "my_ip" {
-  url = "https://checkip.amazonaws.com"
-}
-
 # key pair
 data "aws_key_pair" "key_pair" {
   key_name           = "terraform_aws"

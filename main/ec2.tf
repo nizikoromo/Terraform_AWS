@@ -1,18 +1,9 @@
-# key_pair
-resource "aws_key_pair" "key_pair" {
-  key_name   = "key_pair"
-  public_key = data.aws_key_pair.key_pair.public_key
-}
+module "ec2" {
+  source = "../modules/ec2/"
 
-# instance
-resource "aws_instance" "web_server" {
-  ami                    = data.aws_ami.redhat.id
-  instance_type          = var.web_ami
-  key_name               = aws_key_pair.key_pair.key_name
-  subnet_id              = aws_subnet.public_3a.id
-  vpc_security_group_ids = [aws_security_group.web_sg.id]
-
-  tags = {
-    Name = "terraform_web_server"
-  }
+  key_name                 = var.key_name
+  web_ami                  = var.web_ami
+  ec2_name                 = var.ec2_name
+  subnet_public_3a_id      = module.network.subnet_public_3a_id
+  security_group_web_sg_id = module.security.security_group_web_sg_id
 }

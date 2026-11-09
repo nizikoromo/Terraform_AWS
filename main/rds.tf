@@ -1,38 +1,19 @@
-# RDS
-resource "aws_db_subnet_group" "db_subnet" {
-  name       = "db-subnet"
-  subnet_ids = [aws_subnet.private_3a.id, aws_subnet.private_3c.id]
+module "rds" {
+  source = "../modules/rds/"
 
-  tags = {
-    Name = "terraform_db_subnet_group"
-  }
-}
+  db_subnet_name       = var.db_subnet_name
+  subnet_private_3a_id = module.network.subnet_private_3a_id
+  subnet_private_3c_id = module.network.subnet_private_3c_id
 
-resource "aws_db_parameter_group" "db_parameter" {
-  name   = "db-parameter"
-  family = "mysql8.4"
-}
+  db_parameter_name   = var.db_parameter_name
+  db_parameter_family = var.db_parameter_family
 
-resource "random_string" "db_password" {
-  length  = 16
-  special = false
-}
-
-resource "aws_db_instance" "db" {
-  identifier             = "mysql"
-  instance_class         = "db.t3.micro"
-  allocated_storage      = 5
-  engine                 = "mysql"
-  engine_version         = "8.4"
-  db_name                = "terraform_db"
-  username               = "admin"
-  password               = random_string.db_password.result
-  db_subnet_group_name   = aws_db_subnet_group.db_subnet.name
-  vpc_security_group_ids = [aws_security_group.db_sg.id]
-  parameter_group_name   = aws_db_parameter_group.db_parameter.name
-  skip_final_snapshot    = true
-
-  tags = {
-    Name = "terraform_db"
-  }
+  db_identifier = var.db_identifier
+  db_instance_class = var.db_instance_class
+  db_allocated_storage = var.db_allocated_storage
+  db_engine = var.db_engine
+  engine_version = var.engine_version
+  db_name                 = var.db_name
+  db_username = var.db_username
+  security_group_db_sg_id = module.security.security_group_db_sg_id
 }
